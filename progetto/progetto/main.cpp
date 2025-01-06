@@ -82,7 +82,7 @@ void run() {
 
     while (true) {
         Clear();
-      
+
         for (int i = 0; i < numNemici; ++i) {
             DrawImage(nX[i], nY[i], nemico);
         }
@@ -112,7 +112,7 @@ void run() {
         int pCenterY = pY + playerHeight / 2;
         int xm = MouseX(), ym = MouseY();
         int mx = pCenterX, my = pCenterY;
-       
+
         //movimento nemici
         for (int i = 0; i < numNemici; ++i) {
             if (nX[i] + nemicoWidth / 2 < pCenterX) {
@@ -153,7 +153,7 @@ void run() {
                 }
             }
             //movimento del proiettile
-            
+
             if (LeftMousePressed() && numProiettili < 10) {
                 Proiettile p;
                 p.x = pCenterX;   // Posizione di partenza del proiettile (al centro del player)
@@ -183,28 +183,38 @@ void run() {
                     if (proiettili[i].x < 0 || proiettili[i].x > IMM2D_WIDTH || proiettili[i].y < 0 || proiettili[i].y > IMM2D_HEIGHT) {
                         proiettili[i].attivo = false;
                     }
+                    // Controlla collisione proiettile-nemico
+                    for (int j = 0; j < numNemici; ++j) {
+                        if (isCollisione(proiettili[i].x, proiettili[i].y, ImageWidth(sparo), ImageHeight(sparo), nX[j], nY[j], nemicoWidth, nemicoHeight)) {
+                            proiettili[i].attivo = false;
+
+                            // Teletrasporta il nemico fuori dallo schermo
+                            nX[j] = (rand() % 2 == 0 ? -nemicoWidth : IMM2D_WIDTH + nemicoWidth);
+                            nY[j] = rand() % (IMM2D_HEIGHT + 2 * nemicoHeight) - nemicoHeight;
+                        }
+                    }
+                }
+
+                //risolve collisioni tra nemici
+                for (int j = 0; j < numNemici; ++j) {
+                    if (i != j && isCollisione(nX[i], nY[i], nemicoWidth, nemicoHeight, nX[j], nY[j], nemicoWidth, nemicoHeight)) {
+                        if (nX[i] < nX[j]) nX[i] -= 1; else nX[i] += 1;
+                        if (nY[i] < nY[j]) nY[i] -= 1; else nY[i] += 1;
+                    }
                 }
             }
 
-           //risolve collisioni tra nemici
-          for (int j = 0; j < numNemici; ++j) {
-               if (i != j && isCollisione(nX[i], nY[i], nemicoWidth, nemicoHeight, nX[j], nY[j], nemicoWidth, nemicoHeight)) {
-                    if (nX[i] < nX[j]) nX[i] -= 1; else nX[i] += 1;
-                   if (nY[i] < nY[j]) nY[i] -= 1; else nY[i] += 1;
-               }
-            }
+            //bordi dello schermo
+            if (pX < 0) pX = 0;
+            if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
+            if (pY < 0) pY = 0;
+            if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
+
+            Present();
+
+            Wait(25);
         }
 
-        //bordi dello schermo
-        if (pX < 0) pX = 0;
-        if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
-        if (pY < 0) pY = 0;
-        if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
 
-        Present();
-
-        Wait(25);
     }
-
-
 }
