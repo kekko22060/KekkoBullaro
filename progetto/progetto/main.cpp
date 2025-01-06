@@ -186,23 +186,6 @@ void run() {
                 }
             }
 
-
-           //if (LeftMousePressed() == true) {
-           //     DrawImage(mx, my, sparo);
-           //    if (mx < xm) {
-           //        mx += mSpeed;
-           //     }
-           //    if (mx > xm) {
-           //       mx -= mSpeed;
-           //    }
-           //     if (my < ym) {
-           //         my += mSpeed;
-           //     }
-           //     if (my > ym) {
-           //         my -= mSpeed;
-           //     }
-           // }
-
            //risolve collisioni tra nemici
           for (int j = 0; j < numNemici; ++j) {
                if (i != j && isCollisione(nX[i], nY[i], nemicoWidth, nemicoHeight, nX[j], nY[j], nemicoWidth, nemicoHeight)) {
