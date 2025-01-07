@@ -56,7 +56,7 @@ void run() {
     int pY = (IMM2D_HEIGHT - playerHeight) / 2;
 
     //spawn (casuale) iniziale nemici
-    const int numNemici = 3;
+    const int numNemici = 5;
     int nX[numNemici], nY[numNemici];
     for (int i = 0; i < numNemici; ++i) {
         bool collisione;
@@ -75,8 +75,8 @@ void run() {
     }
 
     const int pSpeed = 10;  //velocità player
-    const int nSpeed = 1;  //velocità nemici
-    const int mSpeed = 5;  //velocita sparo
+    const int nSpeed = 3;  //velocità nemici
+    const int mSpeed = 10;  //velocita sparo
     Proiettile proiettili[10]; // Array per gestire i proiettili
     int numProiettili = 0;
 
@@ -212,7 +212,7 @@ void run() {
 
             Present();
 
-            Wait(25);
+            Wait(20);
         }
 
 
