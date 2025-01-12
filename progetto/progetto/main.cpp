@@ -14,19 +14,16 @@ using namespace std;
 const int distMinNemici = 30;
 const int maxCuori = 5;
 
-// Struttura per gestire i proiettili
-struct Proiettile {
-    float x, y;
-    float dx, dy; // Direzione del proiettile
-    bool attivo;
-};
-
 const int MAX_PROIETTILI = 9999999; // Numero massimo di proiettili gestiti contemporaneamente
-Proiettile proiettili[MAX_PROIETTILI];
+float proiettiliX[MAX_PROIETTILI];
+float proiettiliY[MAX_PROIETTILI];
+float proiettiliDX[MAX_PROIETTILI];
+float proiettiliDY[MAX_PROIETTILI];
+float proiettiliAttivi[MAX_PROIETTILI];
 
 // Tempo per gestire l'intervallo tra i proiettili
 clock_t ultimoSparo = 0; // Tempo dell'ultimo sparo
-const int intervalloSparo = 1000; // 1 secondo in millisecondi
+const int intervalloSparo = 400; // 0,4 secondi
 
 //funzione per verificare collisione tra 2 nemici
 bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
@@ -77,8 +74,7 @@ void run() {
     const int pSpeed = 10;  //velocità player
     const int nSpeed = 3;  //velocità nemici
     const int mSpeed = 10;  //velocita sparo
-    Proiettile proiettili[10]; // Array per gestire i proiettili
-    int numProiettili = 0;
+    
 
     while (true) {
         Clear();
@@ -128,23 +124,31 @@ void run() {
                 nY[i] -= nSpeed;
             }
 
-            // Sparo con intervallo di 1 secondo
+            //risolve collisioni tra nemici
+            for (int j = 0; j < numNemici; j++) {
+                if (i != j && isCollisione(nX[i], nY[i], nemicoWidth, nemicoHeight, nX[j], nY[j], nemicoWidth, nemicoHeight)) {
+                    if (nX[i] < nX[j]) nX[i] -= 1; else nX[i] += 1;
+                    if (nY[i] < nY[j]) nY[i] -= 1; else nY[i] += 1;
+                }
+            }
+        }
+
+            // Sparo con intervallo 
             if (LeftMousePressed() && (clock() - ultimoSparo) >= intervalloSparo) {
                 int pCenterX = pX + playerWidth / 2;
                 int pCenterY = pY + playerHeight / 2;
-
                 // Trova uno slot disponibile nell'array dei proiettili
                 for (int i = 0; i < MAX_PROIETTILI; ++i) {
-                    if (!proiettili[i].attivo) {
+                    if (!proiettiliAttivi[i]) {
                         // Crea un nuovo proiettile
-                        proiettili[i].x = pCenterX;
-                        proiettili[i].y = pCenterY;
+                        proiettiliX[i] = pCenterX;
+                        proiettiliY[i] = pCenterY;
 
                         int mx = MouseX(), my = MouseY();
                         float angle = atan2(my - pCenterY, mx - pCenterX);
-                        proiettili[i].dx = cos(angle) * mSpeed;
-                        proiettili[i].dy = sin(angle) * mSpeed;
-                        proiettili[i].attivo = true;
+                        proiettiliDX[i] = cos(angle) * mSpeed;
+                        proiettiliDY[i] = sin(angle) * mSpeed;
+                        proiettiliAttivi[i] = true;
 
                         // Aggiorna il tempo dell'ultimo sparo
                         ultimoSparo = clock();
@@ -152,41 +156,25 @@ void run() {
                     }
                 }
             }
-            //movimento del proiettile
+           
 
-            if (LeftMousePressed() && numProiettili < 10) {
-                Proiettile p;
-                p.x = pCenterX;   // Posizione di partenza del proiettile (al centro del player)
-                p.y = pCenterY;
-                int mx = MouseX(), my = MouseY();
+            // Aggiorna e disegna i proiettili
+            for (int i = 0; i < MAX_PROIETTILI; ++i) {
+                if (proiettiliAttivi[i]) {
+                    proiettiliX[i] += proiettiliDX[i];
+                    proiettiliY[i] += proiettiliDY[i];
 
-                // Calcoliamo la direzione verso il mouse
-                float angle = atan2(my - p.y, mx - p.x);
-                p.dx = cos(angle) * mSpeed;
-                p.dy = sin(angle) * mSpeed;
-                p.attivo = true;
+                    DrawImage(proiettiliX[i], proiettiliY[i], sparo);
 
-                // Aggiungiamo il proiettile all'array
-                proiettili[numProiettili++] = p;
-            }
-
-            // Aggiorniamo e disegniamo i proiettili
-            for (int i = 0; i < numProiettili; ++i) {
-                if (proiettili[i].attivo) {
-                    proiettili[i].x += proiettili[i].dx;
-                    proiettili[i].y += proiettili[i].dy;
-
-                    // Disegnamo il proiettile
-                    DrawImage(proiettili[i].x, proiettili[i].y, sparo);
-
-                    // Se il proiettile esce dallo schermo, lo disattiviamo
-                    if (proiettili[i].x < 0 || proiettili[i].x > IMM2D_WIDTH || proiettili[i].y < 0 || proiettili[i].y > IMM2D_HEIGHT) {
-                        proiettili[i].attivo = false;
+                    // Se il proiettile esce dallo schermo, lo disattiva
+                    if (proiettiliX[i] < 0 || proiettiliX[i] > IMM2D_WIDTH || proiettiliY[i] < 0 || proiettiliY[i] > IMM2D_HEIGHT) {
+                        proiettiliAttivi[i] = false;
                     }
+
                     // Controlla collisione proiettile-nemico
                     for (int j = 0; j < numNemici; ++j) {
-                        if (isCollisione(proiettili[i].x, proiettili[i].y, ImageWidth(sparo), ImageHeight(sparo), nX[j], nY[j], nemicoWidth, nemicoHeight)) {
-                            proiettili[i].attivo = false;
+                        if (isCollisione(proiettiliX[i], proiettiliY[i], ImageWidth(sparo), ImageHeight(sparo), nX[j], nY[j], nemicoWidth, nemicoHeight)) {
+                            proiettiliAttivi[i] = false;
 
                             // Teletrasporta il nemico fuori dallo schermo
                             nX[j] = (rand() % 2 == 0 ? -nemicoWidth : IMM2D_WIDTH + nemicoWidth);
@@ -194,27 +182,26 @@ void run() {
                         }
                     }
                 }
-
-                //risolve collisioni tra nemici
-                for (int j = 0; j < numNemici; ++j) {
-                    if (i != j && isCollisione(nX[i], nY[i], nemicoWidth, nemicoHeight, nX[j], nY[j], nemicoWidth, nemicoHeight)) {
-                        if (nX[i] < nX[j]) nX[i] -= 1; else nX[i] += 1;
-                        if (nY[i] < nY[j]) nY[i] -= 1; else nY[i] += 1;
-                    }
-                }
             }
+        //bordi dello schermo
+        if (pX < 0) pX = 0;
+        if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
+        if (pY < 0) pY = 0;
+        if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
 
-            //bordi dello schermo
-            if (pX < 0) pX = 0;
-            if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
-            if (pY < 0) pY = 0;
-            if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
+        Present();
 
-            Present();
-
-            Wait(20);
+        Wait(20);
         }
-
-
     }
-}
+
+                
+
+           
+        
+
+
+    
+        
+
+
