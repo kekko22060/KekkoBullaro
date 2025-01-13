@@ -26,9 +26,10 @@ clock_t ultimoSparo = 0; // Tempo dell'ultimo sparo
 const int intervalloSparo = 400; // 0,4 secondi
 
 //funzione per verificare collisione tra 2 nemici
-bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
-    return !(x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2);
-}
+bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
+   
+//funzione per far apparire a chermo "Game Over!"
+void gameOver();
 
 void run() {
     UseDoubleBuffering(true);
@@ -46,7 +47,7 @@ void run() {
     int nemicoWidth = ImageWidth(nemico);
     int nemicoHeight = ImageHeight(nemico);
 
-    bool statoDelMouse = false;
+    int cuori = maxCuori;
 
     //spawn iniziale player
     int pX = (IMM2D_WIDTH - playerWidth) / 2;
@@ -182,26 +183,74 @@ void run() {
                         }
                     }
                 }
-            }
-        //bordi dello schermo
-        if (pX < 0) pX = 0;
-        if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
-        if (pY < 0) pY = 0;
-        if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
-
-        Present();
-
-        Wait(20);
-        }
-    }
-
                 
+                int nCenterX[numNemici];
+                int nCenterY[numNemici];
+                for (int i = 0; i < numNemici; ++i) {
+                    nCenterX[i] = nX[i] + nemicoWidth / 2;
+                    nCenterY[i] = nY[i] + nemicoHeight / 2;
+            }
 
-           
-        
+                for (int i = 0; i < numNemici; ++i) {
+                    // Collisione tra player e nemico
+                    if (isCollisione(pX, pY, playerWidth, playerHeight, nX[i], nY[i], nemicoWidth, nemicoHeight)) {
+                        cuori--; // Decrementa i cuori
+                        if (cuori <= 0) {
+                            gameOver();
+                        }
+
+                        nX[i] = (rand() % 2 == 0 ? -nemicoWidth : IMM2D_WIDTH + nemicoWidth);
+                        nY[i] = rand() % (IMM2D_HEIGHT + 2 * nemicoHeight) - nemicoHeight;
+                    }
+                }
+
+                for (int i = 0; i < cuori; ++i) {
+                    DrawImage(10 + i * (ImageWidth(cuore) + 5), 10, cuore);
+                }
 
 
-    
-        
+                //bordi dello schermo
+                if (pX < 0) pX = 0;
+                if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
+                if (pY < 0) pY = 0;
+                if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
+
+                Present();
+
+                Wait(10);
+            }
+    }
+}
 
 
+bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+    if (x1 + w1 < x2) {
+        return false;
+    }
+    if (x1 > x2 + w2) {
+        return false;
+    }
+    if (y1 + h1 < y2) {
+        return false;
+    }
+    if (y1 > y2 + h2) {
+        return false;
+    }
+    return true;
+}
+
+
+void gameOver() {
+    Clear();
+
+    int textHeight = 90;
+    int x = IMM2D_WIDTH / 2;
+    int y = (IMM2D_HEIGHT - textHeight) / 2;
+
+    DrawString(x, y, "Game Over!", "Arial", 75, Red, true);
+
+    Present();
+    while (true) {
+        Wait(100);
+    }
+}
