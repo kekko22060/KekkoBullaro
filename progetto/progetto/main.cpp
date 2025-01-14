@@ -76,19 +76,27 @@ void run() {
 
         // Movimento player
         char key = LastKey();
-        if (key == 'w') pY -= pSpeed;
-        if (key == 'a') pX -= pSpeed;
-        if (key == 's') pY += pSpeed;
-        if (key == 'd') pX += pSpeed;
+        if (key == 'w')
+            pY -= pSpeed;
+        if (key == 'a')
+            pX -= pSpeed;
+        if (key == 's')
+            pY += pSpeed;
+        if (key == 'd')
+            pX += pSpeed;
 
         // Movimento nemici verso il player
         int pCenterX = pX + playerWidth / 2;
         int pCenterY = pY + playerHeight / 2;
         for (int i = 0; i < numNemici; ++i) {
-            if (nX[i] + nemicoWidth / 2 < pCenterX) nX[i] += nSpeed;
-            if (nX[i] + nemicoWidth / 2 > pCenterX) nX[i] -= nSpeed;
-            if (nY[i] + nemicoHeight / 2 < pCenterY) nY[i] += nSpeed;
-            if (nY[i] + nemicoHeight / 2 > pCenterY) nY[i] -= nSpeed;
+            if (nX[i] + nemicoWidth / 2 < pCenterX)
+                nX[i] += nSpeed;
+            if (nX[i] + nemicoWidth / 2 > pCenterX)
+                nX[i] -= nSpeed;
+            if (nY[i] + nemicoHeight / 2 < pCenterY)
+                nY[i] += nSpeed;
+            if (nY[i] + nemicoHeight / 2 > pCenterY)
+                nY[i] -= nSpeed;
         }
 
         // Sparo
@@ -161,10 +169,14 @@ void run() {
         }
 
         // Bordi dello schermo
-        if (pX < 0) pX = 0;
-        if (pX > IMM2D_WIDTH - playerWidth) pX = IMM2D_WIDTH - playerWidth;
-        if (pY < 0) pY = 0;
-        if (pY > IMM2D_HEIGHT - playerHeight) pY = IMM2D_HEIGHT - playerHeight;
+        if (pX < 0) 
+            pX = 0;
+        if (pX > IMM2D_WIDTH - playerWidth) 
+            pX = IMM2D_WIDTH - playerWidth;
+        if (pY < 0) 
+            pY = 0;
+        if (pY > IMM2D_HEIGHT - playerHeight)
+            pY = IMM2D_HEIGHT - playerHeight;
 
         Present();
         Wait(25);
