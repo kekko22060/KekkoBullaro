@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -18,16 +19,37 @@ const int maxProiettili = 10;
 const int pSpeed = 10;  // Velocità player
 const int nSpeed = 1;   // Velocità nemici
 const int mSpeed = 10;  // Velocità proiettile
-const int intervalloSparo = 1000; // Intervallo sparo in millisecondi
+const int intervalloSparo = 400; // Intervallo sparo in millisecondi
+const int punteggioVittoria = 100; // Punteggio necessario per vincere
 
 // Funzione per verificare collisione
 bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
 // Funzione per far apparire "Game Over!"
 void gameOver();
+// Funzione per far apparire "Hai vinto!"
+void haiVinto();
+
+void menuIniziale() {
+    while (true) {
+        Clear();
+        DrawString(IMM2D_WIDTH / 2 - 25, IMM2D_HEIGHT / 2 - 50, "Premi Invio per iniziare", "Arial", 30, White, true);
+        Present();
+
+        char key = LastKey();
+        if (key == '\r' ) { // Premendo il tasto invio si avvia il gioco
+            break;
+        }
+
+        Wait(25);
+    }
+}
 
 void run() {
     UseDoubleBuffering(true);
     srand(time(NULL));
+
+    // Mostra il menu iniziale
+    menuIniziale();
 
     Image player = LoadImage("player.png");
     Image cuore = LoadImage("cuore.png");
@@ -41,6 +63,7 @@ void run() {
     int nemicoHeight = ImageHeight(nemico);
 
     int cuori = maxCuori;
+    int punteggio = 0;
 
     // Spawn iniziale player
     int pX = (IMM2D_WIDTH - playerWidth) / 2;
@@ -132,6 +155,10 @@ void run() {
                         pAttivo[i] = false;
                         nX[j] = rand() % IMM2D_WIDTH;
                         nY[j] = rand() % IMM2D_HEIGHT;
+                        punteggio += 10; // Incrementa punteggio
+                        if (punteggio >= punteggioVittoria) {
+                            haiVinto();
+                        }
                     }
                 }
             }
@@ -168,12 +195,16 @@ void run() {
             DrawImage(10 + i * (ImageWidth(cuore) + 5), 10, cuore);
         }
 
+        // Disegna punteggio
+        string punteggioStr = "Punteggio: " + to_string(punteggio);
+        DrawString(10, 50, punteggioStr.c_str(), "Arial", 20, White);
+
         // Bordi dello schermo
-        if (pX < 0) 
+        if (pX < 0)
             pX = 0;
-        if (pX > IMM2D_WIDTH - playerWidth) 
+        if (pX > IMM2D_WIDTH - playerWidth)
             pX = IMM2D_WIDTH - playerWidth;
-        if (pY < 0) 
+        if (pY < 0)
             pY = 0;
         if (pY > IMM2D_HEIGHT - playerHeight)
             pY = IMM2D_HEIGHT - playerHeight;
@@ -201,7 +232,15 @@ bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2
 
 void gameOver() {
     Clear();
-    DrawString(IMM2D_WIDTH / 2, (IMM2D_HEIGHT / 2) - 50, "Game Over!", "Arial", 75, Red, true);
+    DrawString(IMM2D_WIDTH / 2 - 150, IMM2D_HEIGHT / 2 - 50, "Game Over!", "Arial", 75, Red, true);
+    Present();
+    while (true) {
+        Wait(100);
+    }
+}
+void haiVinto() {
+    Clear();
+    DrawString(IMM2D_WIDTH / 2 - 25, IMM2D_HEIGHT / 2 - 50, "Hai vinto!", "Arial", 75, Green, true);
     Present();
     while (true) {
         Wait(100);
