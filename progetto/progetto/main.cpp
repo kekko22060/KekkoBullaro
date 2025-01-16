@@ -36,7 +36,7 @@ void menuIniziale() {
         Present();
 
         char key = LastKey();
-        if (key == '\r' ) { // Premendo il tasto invio si avvia il gioco
+        if (key == '\r') { // Premendo il tasto invio si avvia il gioco
             break;
         }
 
@@ -55,6 +55,7 @@ void run() {
     Image cuore = LoadImage("cuore.png");
     Image nemico = LoadImage("chillguy_sinistra.png");
     Image sparo = LoadImage("matita.png");
+    Image sfondo = LoadImage("sfondo.png");
 
     int playerWidth = ImageWidth(player);
     int playerHeight = ImageHeight(player);
@@ -88,6 +89,9 @@ void run() {
 
     while (true) {
         Clear();
+
+        // Disegna lo sfondo
+        DrawImage(0, 0, sfondo);
 
         // Disegna nemici
         for (int i = 0; i < numNemici; ++i) {
@@ -155,7 +159,7 @@ void run() {
                         pAttivo[i] = false;
                         nX[j] = rand() % IMM2D_WIDTH;
                         nY[j] = rand() % IMM2D_HEIGHT;
-                        punteggio += 10; // Incrementa punteggio
+                        punteggio += 5; // Incrementa punteggio
                         if (punteggio >= punteggioVittoria) {
                             haiVinto();
                         }
@@ -189,7 +193,6 @@ void run() {
             }
         }
 
-
         // Disegna cuori
         for (int i = 0; i < cuori; ++i) {
             DrawImage(10 + i * (ImageWidth(cuore) + 5), 10, cuore);
@@ -197,7 +200,7 @@ void run() {
 
         // Disegna punteggio
         string punteggioStr = "Punteggio: " + to_string(punteggio);
-        DrawString(10, 50, punteggioStr.c_str(), "Arial", 20, White);
+        DrawString(IMM2D_WIDTH - 180, 10, punteggioStr.c_str(), "Arial", 20, Black);
 
         // Bordi dello schermo
         if (pX < 0)
@@ -232,15 +235,16 @@ bool isCollisione(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2
 
 void gameOver() {
     Clear();
-    DrawString(IMM2D_WIDTH / 2 - 150, IMM2D_HEIGHT / 2 - 50, "Game Over!", "Arial", 75, Red, true);
+    DrawString(IMM2D_WIDTH / 2, IMM2D_HEIGHT / 2 - 50, "Game Over!", "Arial", 75, Red, true);
     Present();
     while (true) {
         Wait(100);
     }
 }
+
 void haiVinto() {
     Clear();
-    DrawString(IMM2D_WIDTH / 2 - 25, IMM2D_HEIGHT / 2 - 50, "Hai vinto!", "Arial", 75, Green, true);
+    DrawString(IMM2D_WIDTH / 2, IMM2D_HEIGHT / 2 - 50, "Hai vinto!", "Arial", 75, Green, true);
     Present();
     while (true) {
         Wait(100);
